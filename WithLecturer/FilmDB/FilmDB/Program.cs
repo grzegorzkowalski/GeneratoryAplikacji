@@ -1,6 +1,12 @@
+using FilmDB;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var cs = builder.Configuration.GetConnectionString("Default");
+builder.Services.AddDbContext<WeatherContext>(options =>
+options.UseSqlServer(cs));
 
 builder.Services.AddControllers();
 

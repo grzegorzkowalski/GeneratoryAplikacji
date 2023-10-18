@@ -1,3 +1,4 @@
+using FilmDB.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FilmDB.Controllers
@@ -12,22 +13,42 @@ namespace FilmDB.Controllers
     };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private WeatherContext _weatherContext;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger , WeatherContext weatherContext)
         {
             _logger = logger;
+            _weatherContext = weatherContext;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            //return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            //{
+            //    Date = DateTime.Now.AddDays(index),
+            //    TemperatureC = Random.Shared.Next(-20, 55),
+            //    Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            //})
+            //.ToArray();
+            return _weatherContext.WeatherForecasts.ToList();
+        }
+
+        [HttpPost(Name = "AddWeatherForecast")]
+        public IActionResult Add(WeatherForecast weatherForecast)
+        {
+            weatherForecast.Date = DateTime.Now;
+            if (ModelState.IsValid) 
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                _weatherContext.Add(weatherForecast);
+                _weatherContext.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+
         }
     }
 }
